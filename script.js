@@ -29,13 +29,6 @@ const fullHtmlEditor = ace.edit("full-html-editor");
     ed.session.setMode("ace/mode/html");
 });
 
-const defaultSnippets = {
-    "Button": `"<button type=\"button\" class=\"btn btn-primary\">Primary</button>"`,
-    "Form Input": `<div class=\"mb-3\">\n  <label for=\"exampleFormControlInput1\" class=\"form-label\">Email address</label>\n  <input type=\"email\" class=\"form-control\" id=\"exampleFormControlInput1\" placeholder=\"name@example.com\">\n</div>`,
-    "Card": `<div class=\"card\" style=\"width: 18rem;\">\n  <img src=\"https://placehold.co/600x400/343a40/ffffff?text=Image\" class=\"card-img-top\" alt=\"...\">\n  <div class=\"card-body\">\n    <h5 class=\"card-title\">Card title</h5>\n    <p class=\"card-text\">Some quick example text to build on the card title and make up the bulk of the card\'s content.</p>\n    <a href=\"#\" class=\"btn btn-primary\">Go somewhere</a>\n  </div>\n</div>`,
-    "Alert": `"<div class=\"alert alert-primary\" role=\"alert\">\n  A simple primary alert—check it out!\n</div>"`,
-}
-
 const editorThemes = {
     "Tomorrow Night": "ace/theme/tomorrow_night",
     "Monokai": "ace/theme/monokai",
@@ -60,7 +53,7 @@ const getIframeContent = (userCode) => {
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="witdh=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -80,6 +73,36 @@ ${userCode.trim().indent(8)}
     `.trim();
 }
 
+const animateButtonText = (button, newText, duration = 2000) => {
+    const buttonSpan = button.querySelector('span');
+    if (!buttonSpan) return;
+
+    const originalText = buttonSpan.innerHTML;
+    buttonSpan.style.display = "inline-block";
+    buttonSpan.style.opacity = 0;
+    buttonSpan.style.filter = "blur(2px)";
+    buttonSpan.style.transform = "scale(0.95)";
+
+    setTimeout(() => {
+        buttonSpan.innerHTML = newText;
+        buttonSpan.style.opacity = 1;
+        buttonSpan.style.filter = "blur(0px)";
+        buttonSpan.style.transform = "scale(1.0)";
+    }, 300);
+
+    setTimeout(() => {
+        buttonSpan.style.opacity = 0;
+        buttonSpan.style.transform = "scale(1.0)";
+        buttonSpan.style.filter = "blur(2px)";
+
+        setTimeout(() => {
+            buttonSpan.innerHTML = originalText;
+            buttonSpan.style.opacity = 1;
+            buttonSpan.style.transform = "scale(1.0)";
+            buttonSpan.style.filter = "blur(0px)";
+        }, 300);
+    }, duration);
+};
 
 const updatePreview = () => {
     const code = editor.getValue();
@@ -174,7 +197,7 @@ const populateSnippets = () => {
         return li;
     };
     for (const [name, code] of Object.entries(defaultSnippets)) {
-        snippetsMenu.appendChild(createItem(name, code));
+        snippetsMenu.appendChild(createItem(name, code.trimNewLineStart()));
     }
     const customSnippets = JSON.parse(localStorage.getItem(snippetsStorageKey) || "[]");
     if (customSnippets.length > 0) {
@@ -205,7 +228,10 @@ const populateSnippets = () => {
 
 const exportSnippets = () => {
     const customSnippets = JSON.parse(localStorage.getItem(snippetsStorageKey) || "[]");
-    if (customSnippets.length === 0) return;
+    if (customSnippets.length === 0) {
+        animateButtonText(exportSnippetsBtn, 'No Snippets');
+        return;
+    }
     const blob = new Blob([JSON.stringify(customSnippets, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -213,6 +239,7 @@ const exportSnippets = () => {
     a.download = "bootstrap-scratchpad-snippets.json";
     a.click();
     URL.revokeObjectURL(url);
+    animateButtonText(exportSnippetsBtn, '<i class="bi bi-check-lg me-2"></i>Exported!');
 };
 
 const importSnippets = (event) => {
@@ -224,24 +251,35 @@ const importSnippets = (event) => {
             const importedSnippets = JSON.parse(e.target.result);
             const customSnippets = JSON.parse(localStorage.getItem(snippetsStorageKey) || "[]");
             const mergedSnippets = [...customSnippets];
+            let newSnippetsCount = 0;
             for (const importedSnippet of importedSnippets) {
                 if (!customSnippets.some(s => s.title === importedSnippet.title)) {
                     mergedSnippets.push(importedSnippet);
+                    newSnippetsCount++;
                 }
             }
             localStorage.setItem(snippetsStorageKey, JSON.stringify(mergedSnippets));
             populateSnippets();
+            animateButtonText(importSnippetsBtn, `<i class="bi bi-check-lg me-2"></i>Imported ${newSnippetsCount}`);
         } catch (error) {
             console.error("Error parsing snippets file:", error);
             alert("Invalid snippets file.");
+            animateButtonText(importSnippetsBtn, '<i class="bi bi-x-lg me-2"></i>Import Failed');
         }
     };
     reader.readAsText(file);
 };
 
 const clearSnippets = () => {
+    const customSnippets = JSON.parse(localStorage.getItem(snippetsStorageKey) || "[]");
+    if (customSnippets.length === 0) {
+        animateButtonText(clearSnippetsBtn, 'No Snippets');
+        return;
+    }
+
     if (confirm("Are you sure you want to clear all custom snippets?")) {
         localStorage.removeItem(snippetsStorageKey);
+        animateButtonText(clearSnippetsBtn, "Cleared")
         populateSnippets();
     }
 };
@@ -309,11 +347,7 @@ copyHtmlBtn.addEventListener("click", () => {
     tempTextArea.select();
     document.execCommand("copy");
     document.body.removeChild(tempTextArea);
-    const originalText = copyHtmlBtn.innerHTML;
-    copyHtmlBtn.innerHTML =
-        setTimeout(() => {
-            copyHtmlBtn.innerHTML = originalText;
-        }, 2000);
+    animateButtonText(copyHtmlBtn, '<i class="bi bi-check-lg me-2"></i>Copied!');
 });
 
 importSnippetsBtn.addEventListener("click", () => importSnippetsInput.click());

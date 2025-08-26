@@ -11,7 +11,7 @@
 
   <link href="lib/css/bootstrap.min.css" rel="stylesheet" />
   <link href="lib/css/bootstrap-icons.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=optional" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -63,9 +63,9 @@
           <div id="full-html-editor"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn" data-bs-dismiss="modal"><span>Close</span></button>
           <button type="button" class="btn btn-primary" id="copy-html-btn" title="Copy to clipboard">
-            <i class="bi bi-clipboard me-2"></i>Copy
+            <i class="bi bi-clipboard me-2"></i><span>Copy</span>
           </button>
         </div>
       </div>
@@ -102,15 +102,15 @@
           <hr>
           <div class="mb-3">
             <label class="form-label">Manage Snippets</label>
-            <div class="d-flex justify-content-between">
-              <button class="btn btn-secondary" id="import-snippets-btn" title="Import snippets from a JSON file">
-                <i class="bi bi-box-arrow-in-down me-2"></i>Import
+            <div class="d-flex justify-content-between gap-2">
+              <button class="btn btn-secondary w-100 d-flex" id="import-snippets-btn" title="Import snippets from a JSON file">
+                <i class="bi bi-box-arrow-in-down me-2"></i><span class="w-100">Import JSON</span>
               </button>
-              <button class="btn btn-secondary" id="export-snippets-btn" title="Export snippets to a JSON file">
-                <i class="bi bi-box-arrow-up me-2"></i>Export
+              <button class="btn btn-secondary w-100 d-flex" id="export-snippets-btn" title="Export snippets to a JSON file">
+                <i class="bi bi-box-arrow-up me-2"></i><span class="w-100">Export JSON</span>
               </button>
-              <button class="btn btn-danger" id="clear-snippets-btn" title="Clear all saved snippets">
-                <i class="bi bi-trash me-2"></i>Clear
+              <button class="btn btn-danger w-100 d-flex" id="clear-snippets-btn" title="Clear all saved snippets">
+                <i class="bi bi-trash me-2"></i><span class="w-100">Clear All</span>
               </button>
               <input type="file" id="import-snippets-input" style="display: none;" accept=".json">
             </div>
@@ -148,14 +148,14 @@
             <i class="bi bi-box-arrow-up-right me-2"></i>Bootstrap Docs
           </a>
           <button type="button" class="btn" data-bs-dismiss="modal" title="Cancel snippet creation">Cancel</button>
-          <button type="button" class="btn btn-primary" id="save-snippet-btn" title="Save the new snippet">Save
-            Snippet</button>
+          <button type="button" class="btn btn-primary" id="save-snippet-btn" title="Save the new snippet"><span>Save Snippet</span></button>
         </div>
       </div>
     </div>
   </div>
 
   <script src="lib/extensions.js"></script>
+  <script src="snippets.js"></script>
   <script src="lib/js/bootstrap.bundle.min.js"></script>
   <script src="lib/js/ace.js"></script>
   <script>

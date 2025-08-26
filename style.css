@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=optional');
 
 :root {
     --smooth-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -134,12 +134,18 @@ html {
 }
 
 .nav-buttons .btn:hover,
-.nav-buttons .btn:active {
+.nav-buttons .btn:active,
+.nav-buttons .btn:focus,
+.nav-buttons .btn {
     background: none;
 }
 
 .btn {
     transition: background 50ms ease-in-out, color 50ms ease-in-out;
+}
+
+.btn span {
+    transition: opacity 0.3s ease-in-out, filter 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 @media (max-width: 768px) {
