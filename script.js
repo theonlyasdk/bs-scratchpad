@@ -183,9 +183,11 @@ const populateSnippets = () => {
             snippetsMenu.appendChild(divider);
         customSnippets.forEach((s) => snippetsMenu.appendChild(createItem(s.title, s.code)));
     }
-    const divider = document.createElement("li");
-    divider.innerHTML =
-        snippetsMenu.appendChild(divider);
+    const divider = document.createElement("hr");
+    divider.style.padding = "0";
+    divider.style.marginTop = "5px";
+    divider.style.marginBottom = "5px";
+    snippetsMenu.appendChild(divider);
     const addBtnLi = document.createElement("li");
     const addBtnA = document.createElement("a");
     addBtnA.className = "dropdown-item";
