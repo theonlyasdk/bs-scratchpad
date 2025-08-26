@@ -5,14 +5,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bootstrap Scratchpad</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="lib/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="lib/css/bootstrap-icons.css" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --smooth-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         body,
         html {
             margin: 0;
@@ -22,17 +25,39 @@
             font-family: "Inter", sans-serif;
         }
 
-        .modal.fade .modal-dialog {
-          transform: scale(1.05);
+        .dropdown-menu {
+          transform-origin: top right;
+          transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          transform: scale(0.8);
           opacity: 0;
-          transition: transform 0.3s ease-out, opacity 0.3s ease-out, perspective 0.3s ease-out;
-          perspective: 10px;
+          box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175); /* Added shadow */
+        }
+
+        .dropdown-menu.show {
+          transform: scale(1);
+          opacity: 1;
+        }
+
+        .dropdown-item {
+          transition: opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          opacity: 0;
+        }
+
+        .dropdown-menu.show .dropdown-item {
+          opacity: 1;
+        }
+
+        .modal.fade .modal-dialog {
+            transform: scale(1.05);
+            opacity: 0;
+            transition: transform 0.3s var(--smooth-spring), opacity 0.3s var(--smooth-spring), filter 0.3s var(--smooth-spring);
+            filter: blur(10px);
         }
 
         .modal.fade.show .modal-dialog {
-          transform: scale(1);
-          perspective: 0px;
-          opacity: 1;
+            transform: scale(1);
+            filter: blur(0px);
+            opacity: 1;
         }
 
 
@@ -95,7 +120,7 @@
         }
 
         .ace_editor {
-            font-size: 16px !important;
+            font-size: 16px;
         }
 
         .dropdown-menu {
@@ -113,16 +138,15 @@
             margin-right: auto;
         }
 
-        .modal-body {
-            overflow: auto;
-            max-height: 60vh;
+        #htmlModal .modal-body {
+            padding: 0;
         }
 
-        .modal-body>pre {
-            overflow: visible;
+        .modal-body #full-html-editor {
+            height: 400px;
         }
 
-        .nav-buttons .btn:hover {
+        .nav-buttons .btn:hover, .nav-buttons .btn:active {
             background: none;
         }
 
@@ -196,12 +220,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <pre><code id="html-code" class="language-html"></code></pre>
+                    <div id="full-html-editor"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="copy-html-btn" title="Copy to clipboard"><i
-                            class="bi bi-clipboard me-2"></i>Copy</button>
+                    <button type="button" class="btn btn-primary" id="copy-html-btn" title="Copy to clipboard">
+                        <i class="bi bi-clipboard me-2"></i>Copy
+                    </button>
                 </div>
             </div>
         </div>
@@ -217,6 +242,11 @@
                     <div class="mb-3">
                         <label for="editor-theme-select" class="form-label">Editor Theme</label>
                         <select class="form-select" id="editor-theme-select"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editor-font-select" class="form-label">Editor Font</label>
+                        <select class="form-select" id="editor-font-select"></select>
+                        <input type="text" class="form-control mt-2" id="custom-font-input" placeholder="Enter font name" style="display: none;" />
                     </div>
                     <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox"
                             role="switch" id="word-wrap-toggle" /><label class="form-check-label"
@@ -270,14 +300,16 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.4/ace.js"></script>
+    <script src="lib/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/js/ace.js"></script>
+    <script>
+        ace.config.set('basePath', 'lib/js/');
+    </script>
     <script>
         const titleInput = document.getElementById("title-input");
         const getHtmlBtn = document.getElementById("get-html-btn");
         const htmlModal = new bootstrap.Modal(document.getElementById("htmlModal"));
         const addSnippetModal = new bootstrap.Modal(document.getElementById("addSnippetModal"));
-        const htmlCodeEl = document.getElementById("html-code");
         const htmlModalLabel = document.getElementById("htmlModalLabel");
         const copyHtmlBtn = document.getElementById("copy-html-btn");
         const snippetsMenu = document.getElementById("snippets-menu");
@@ -287,14 +319,17 @@
         const editorThemeSelect = document.getElementById("editor-theme-select");
         const fontSizeInput = document.getElementById("font-size-input");
         const tabSizeInput = document.getElementById("tab-size-input");
+        const editorFontSelect = document.getElementById("editor-font-select");
+        const customFontInput = document.getElementById("custom-font-input");
         const previewIframe = document.getElementById("preview-iframe");
         const docStorageKey = "bs-scratchpad-document-data";
         const settingsStorageKey = "bs-scratchpad-settings";
         const snippetsStorageKey = "bs-scratchpad-snippets";
         const editor = ace.edit("editor");
         const snippetEditor = ace.edit("snippet-code-editor");
+        const fullHtmlEditor = ace.edit("full-html-editor");
 
-        [editor, snippetEditor].forEach((ed) => {
+        [editor, snippetEditor, fullHtmlEditor].forEach((ed) => {
             ed.session.setMode("ace/mode/html");
         });
 
@@ -313,6 +348,15 @@
             "Cobalt": "ace/theme/cobalt",
         }
 
+        const predefinedFonts = {
+            "Ubuntu Mono": "Ubuntu Mono",
+            "Courier New": "Courier New",
+            "Lucida Console": "Lucida Console",
+            "Monaco": "Monaco",
+            "Consolas": "Consolas",
+            "Custom...": "custom",
+        }
+
         const createBootstrapIcon = (iconName) => {
             const icon = document.createElement('i');
             icon.classList.add('bi', `bi-${iconName}`, 'me-2');
@@ -327,8 +371,8 @@
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>${title}</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+                    <link href="lib/css/bootstrap.min.css" rel="stylesheet">
+                    <link href="lib/css/bootstrap-icons.css" rel="stylesheet">
                     <style>
                         body {
                             padding: 1.5rem;
@@ -339,7 +383,7 @@
                     <div class="app">
                         ${userCode}
                     </div>
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"><\/script>
+                    <script src="lib/js/bootstrap.bundle.min.js"><\/script>
                 </body>
             </html>`;
         }
@@ -349,7 +393,7 @@
             const code = editor.getValue();
             previewIframe.srcdoc = code.trim()
                 ? getIframeContent(code)
-                : `<!DOCTYPE html><html lang="en" data-bs-theme="dark" style="background-color: #111111;"><head><title>Preview</title><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"><style>body, html { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #111111; color: #6c757d; flex-direction: column; font-family: sans-serif; } i { font-size: 4rem; margin-bottom: 1rem; animation: fade-in 1s linear } @keyframes fade-in {from {opacity:0;filter:blur(5px);} to {opacity:1;filter:blur(0px);}}</style></head><body><i class="bi bi-eye"></i></body></html>`;
+                : `<!DOCTYPE html><html lang="en" data-bs-theme="dark" style="background-color: #111111;"><head><title>Preview</title><link href="lib/css/bootstrap-icons.css" rel="stylesheet"><style>body, html { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #111111; color: #6c757d; flex-direction: column; font-family: sans-serif; } i { font-size: 4rem; margin-bottom: 1rem; animation: fade-in 1s linear } @keyframes fade-in {from {opacity:0;filter:blur(5px);} to {opacity:1;filter:blur(0px);}}</style></head><body><i class="bi bi-eye"></i></body></html>`;
         }
 
         const saveData = () => {
@@ -377,24 +421,47 @@
                     wordWrap: wordWrapToggle.checked,
                     fontSize: fontSizeInput.value,
                     tabSize: tabSizeInput.value,
+                    font: editorFontSelect.value === "custom" ? customFontInput.value : editorFontSelect.value,
                 })
             );
         }
 
         const loadSettings = () => {
             Object.entries(editorThemes).forEach(([name, path]) => editorThemeSelect.add(new Option(name, path)));
+            Object.entries(predefinedFonts).forEach(([name, value]) => {
+                editorFontSelect.add(new Option(name, value));
+                if (name === "Consolas") { // After the last predefined font
+                    const hrOption = document.createElement("option");
+                    hrOption.disabled = true;
+                    hrOption.textContent = "---"; // Visual separator
+                    editorFontSelect.add(hrOption);
+                }
+            });
             const settings = JSON.parse(localStorage.getItem(settingsStorageKey) || "{}");
             const theme = settings.theme || "ace/theme/tomorrow_night";
             const fontSize = settings.fontSize || 16;
             const tabSize = settings.tabSize || 4;
+            const font = settings.font || "Ubuntu Mono";
+
             editorThemeSelect.value = theme;
             wordWrapToggle.checked = settings.wordWrap === true;
             fontSizeInput.value = fontSize;
             tabSizeInput.value = tabSize;
-            [editor, snippetEditor].forEach((ed) => {
+
+            if (Object.values(predefinedFonts).includes(font)) {
+                editorFontSelect.value = font;
+                customFontInput.style.display = "none";
+            } else {
+                editorFontSelect.value = "custom";
+                customFontInput.value = font;
+                customFontInput.style.display = "block";
+            }
+
+            [editor, snippetEditor, fullHtmlEditor].forEach((ed) => {
                 ed.setTheme(theme);
                 ed.setFontSize(parseInt(fontSize));
                 ed.session.setTabSize(parseInt(tabSize));
+                ed.setOptions({ fontFamily: font });
             });
             editor.session.setUseWrapMode(wordWrapToggle.checked);
         };
@@ -466,15 +533,24 @@
         });
 
         titleInput.addEventListener("input", saveData);
-        [editorThemeSelect, wordWrapToggle, fontSizeInput, tabSizeInput].forEach((el) =>
+        [editorThemeSelect, wordWrapToggle, fontSizeInput, tabSizeInput, editorFontSelect, customFontInput].forEach((el) =>
             el.addEventListener("change", () => {
                 const newTheme = editorThemeSelect.value;
                 const newFontSize = parseInt(fontSizeInput.value);
                 const newTabSize = parseInt(tabSizeInput.value);
-                [editor, snippetEditor].forEach((ed) => {
+                const newFont = editorFontSelect.value === "custom" ? customFontInput.value : editorFontSelect.value;
+
+                if (editorFontSelect.value === "custom") {
+                    customFontInput.style.display = "block";
+                } else {
+                    customFontInput.style.display = "none";
+                }
+
+                [editor, snippetEditor, fullHtmlEditor].forEach((ed) => {
                     ed.setTheme(newTheme);
                     ed.setFontSize(newFontSize);
                     ed.session.setTabSize(newTabSize);
+                    ed.setOptions({ fontFamily: newFont });
                 });
                 editor.session.setUseWrapMode(wordWrapToggle.checked);
                 saveSettings();
@@ -482,12 +558,12 @@
         );
         getHtmlBtn.addEventListener("click", () => {
             htmlModalLabel.textContent = titleInput.value || "Full HTML";
-            htmlCodeEl.textContent = getIframeContent(editor.getValue());
+            fullHtmlEditor.setValue(getIframeContent(editor.getValue()), -1);
             htmlModal.show();
         });
         copyHtmlBtn.addEventListener("click", () => {
             const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = htmlCodeEl.textContent;
+            tempTextArea.value = fullHtmlEditor.getValue();
             document.body.appendChild(tempTextArea);
             tempTextArea.select();
             document.execCommand("copy");
@@ -498,7 +574,7 @@
                 copyHtmlBtn.innerHTML = originalText;
             }, 2000);
         });
-        document.addEventListener("DOMContentLoaded", () => {
+                                document.addEventListener("DOMContentLoaded", () => {
             populateSnippets();
             loadSettings();
             loadData();
