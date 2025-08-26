@@ -6,6 +6,7 @@ const htmlModalLabel = document.getElementById("htmlModalLabel");
 const copyHtmlBtn = document.getElementById("copy-html-btn");
 const snippetsMenu = document.getElementById("snippets-menu");
 const wordWrapToggle = document.getElementById("word-wrap-toggle");
+const autocompleteToggle = document.getElementById("autocomplete-toggle");
 const snippetTitleInput = document.getElementById("snippet-title-input");
 const saveSnippetBtn = document.getElementById("save-snippet-btn");
 const editorThemeSelect = document.getElementById("editor-theme-select");
@@ -27,6 +28,7 @@ const fullHtmlEditor = ace.edit("full-html-editor");
 
 [editor, snippetEditor, fullHtmlEditor].forEach((ed) => {
     ed.session.setMode("ace/mode/html");
+    ed.$blockScrolling = Infinity;
 });
 
 const editorThemes = {
@@ -77,6 +79,8 @@ const animateButtonText = (button, newText, duration = 2000) => {
     const buttonSpan = button.querySelector('span');
     if (!buttonSpan) return;
 
+    button.width = "200px";
+    
     const originalText = buttonSpan.innerHTML;
     buttonSpan.style.display = "inline-block";
     buttonSpan.style.opacity = 0;
@@ -134,6 +138,7 @@ const saveSettings = () => {
         JSON.stringify({
             theme: editorThemeSelect.value,
             wordWrap: wordWrapToggle.checked,
+            autocomplete: autocompleteToggle.checked,
             fontSize: fontSizeInput.value,
             tabSize: tabSizeInput.value,
             font: editorFontSelect.value === "custom" ? customFontInput.value : editorFontSelect.value,
@@ -161,9 +166,11 @@ const loadSettings = () => {
     const fontSize = settings.fontSize || 16;
     const tabSize = settings.tabSize || 4;
     const font = settings.font || "Ubuntu Mono";
+    const autocomplete = settings.autocomplete === undefined ? true : settings.autocomplete;
 
     editorThemeSelect.value = theme;
     wordWrapToggle.checked = settings.wordWrap === true;
+    autocompleteToggle.checked = autocomplete;
     fontSizeInput.value = fontSize;
     tabSizeInput.value = tabSize;
 
@@ -180,7 +187,11 @@ const loadSettings = () => {
         ed.setTheme(theme);
         ed.setFontSize(parseInt(fontSize));
         ed.session.setTabSize(parseInt(tabSize));
-        ed.setOptions({ fontFamily: font });
+        ed.setOptions({
+            fontFamily: font,
+            enableBasicAutocompletion: autocomplete,
+            enableLiveAutocompletion: autocomplete
+        });
     });
     editor.session.setUseWrapMode(wordWrapToggle.checked);
 };
@@ -306,12 +317,13 @@ editor.session.on("change", () => {
 });
 
 titleInput.addEventListener("input", saveData);
-[editorThemeSelect, wordWrapToggle, fontSizeInput, tabSizeInput, editorFontSelect, customFontInput].forEach((el) =>
+[editorThemeSelect, wordWrapToggle, autocompleteToggle, fontSizeInput, tabSizeInput, editorFontSelect, customFontInput].forEach((el) =>
     el.addEventListener("change", () => {
         const newTheme = editorThemeSelect.value;
         const newFontSize = parseInt(fontSizeInput.value);
         const newTabSize = parseInt(tabSizeInput.value);
         const newFont = editorFontSelect.value === "custom" ? customFontInput.value : editorFontSelect.value;
+        const newAutocomplete = autocompleteToggle.checked;
 
         if (editorFontSelect.value === "custom") {
             customFontInput.style.display = "block";
@@ -323,7 +335,11 @@ titleInput.addEventListener("input", saveData);
             ed.setTheme(newTheme);
             ed.setFontSize(newFontSize);
             ed.session.setTabSize(newTabSize);
-            ed.setOptions({ fontFamily: newFont });
+            ed.setOptions({
+                fontFamily: newFont,
+                enableBasicAutocompletion: newAutocomplete,
+                enableLiveAutocompletion: newAutocomplete
+            });
         });
         editor.session.setUseWrapMode(wordWrapToggle.checked);
         saveSettings();
@@ -341,7 +357,7 @@ copyHtmlBtn.addEventListener("click", () => {
     tempTextArea.select();
     document.execCommand("copy");
     document.body.removeChild(tempTextArea);
-    animateButtonText(copyHtmlBtn, '<i class="bi bi-check-lg me-2"></i>Copied!');
+    animateButtonText(copyHtmlBtn, 'Copied');
 });
 
 importSnippetsBtn.addEventListener("click", () => importSnippetsInput.click());

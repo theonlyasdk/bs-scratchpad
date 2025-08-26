@@ -91,6 +91,8 @@
           </div>
           <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" role="switch"
               id="word-wrap-toggle" /><label class="form-check-label" for="word-wrap-toggle">Word Wrap</label></div>
+          <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" role="switch"
+              id="autocomplete-toggle" checked /><label class="form-check-label" for="autocomplete-toggle">Autocomplete</label></div>
           <div class="row">
             <div class="col"><label for="font-size-input" class="form-label">Font Size</label><input type="number"
                 class="form-control" id="font-size-input" min="8" max="32" value="16" />
@@ -157,7 +159,8 @@
   <script src="lib/extensions.js"></script>
   <script src="snippets.js"></script>
   <script src="lib/js/bootstrap.bundle.min.js"></script>
-  <script src="lib/js/ace.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.43.2/src-noconflict/ace.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.43.2/src-noconflict/ext-language_tools.js"></script>
   <script>
     ace.config.set("basePath", "lib/js/");
   </script>
