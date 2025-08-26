@@ -35,6 +35,19 @@ html {
     opacity: 1;
 }
 
+.modal .modal-header {
+    border-bottom: none;
+}
+
+.modal:not(#htmlModal) .modal-header {
+    padding-bottom: 0;
+}
+
+.modal .modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
 .modal.fade .modal-dialog {
     transform: scale(1.05);
     opacity: 0;
@@ -47,7 +60,6 @@ html {
     filter: blur(0px);
     opacity: 1;
 }
-
 
 .main-container {
     display: flex;
@@ -66,6 +78,12 @@ html {
     flex: 1;
     height: 100%;
     padding: 0;
+}
+
+#snippets-menu hr {
+    margin: 0;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 #editor,
@@ -166,5 +184,9 @@ html {
     .nav-bs-icon {
         margin-left: 3px;
         margin-right: 0 !important;
+    }
+
+    #settingsModal .snippets-section .btn {
+        font-size: 0.8rem;
     }
 }

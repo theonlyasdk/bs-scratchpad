@@ -201,16 +201,10 @@ const populateSnippets = () => {
     }
     const customSnippets = JSON.parse(localStorage.getItem(snippetsStorageKey) || "[]");
     if (customSnippets.length > 0) {
-        const divider = document.createElement("li");
-        divider.innerHTML =
-            snippetsMenu.appendChild(divider);
+        snippetsMenu.appendChild(document.createElement("hr"));
         customSnippets.forEach((s) => snippetsMenu.appendChild(createItem(s.title, s.code)));
     }
-    const divider = document.createElement("hr");
-    divider.style.padding = "0";
-    divider.style.marginTop = "5px";
-    divider.style.marginBottom = "5px";
-    snippetsMenu.appendChild(divider);
+    snippetsMenu.appendChild(document.createElement("hr"));
     const addBtnLi = document.createElement("li");
     const addBtnA = document.createElement("a");
     addBtnA.className = "dropdown-item";
@@ -239,7 +233,7 @@ const exportSnippets = () => {
     a.download = "bootstrap-scratchpad-snippets.json";
     a.click();
     URL.revokeObjectURL(url);
-    animateButtonText(exportSnippetsBtn, '<i class="bi bi-check-lg me-2"></i>Exported!');
+    animateButtonText(exportSnippetsBtn, 'Exported');
 };
 
 const importSnippets = (event) => {
