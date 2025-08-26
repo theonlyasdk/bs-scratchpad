@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+:root {
+    --smooth-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Inter", sans-serif;
+}
+
+.dropdown-menu {
+    transform-origin: top right;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(0.8);
+    opacity: 0;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+}
+
+.dropdown-menu.show {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.dropdown-item {
+    transition: opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+}
+
+.dropdown-menu.show .dropdown-item {
+    opacity: 1;
+}
+
+.modal.fade .modal-dialog {
+    transform: scale(1.05);
+    opacity: 0;
+    transition: transform 0.3s var(--smooth-spring), opacity 0.3s var(--smooth-spring), filter 0.3s var(--smooth-spring);
+    filter: blur(10px);
+}
+
+.modal.fade.show .modal-dialog {
+    transform: scale(1);
+    filter: blur(0px);
+    opacity: 1;
+}
+
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.split-view {
+    display: flex;
+    flex-grow: 1;
+    height: calc(100% - 56px);
+}
+
+#editor-container,
+#preview {
+    flex: 1;
+    height: 100%;
+    overflow: auto;
+    padding: 0;
+}
+
+#editor,
+#snippet-code-editor {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+}
+
+#preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #212529;
+}
+
+.navbar .form-control {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #f8f9fa;
+}
+
+#html-code {
+    background-color: #212529;
+    color: #f8f9fa;
+    border-radius: 0.25rem;
+    max-height: 60vh;
+}
+
+#htmlModal>.modal-dialog {
+    height: 40vh;
+}
+
+#htmlModal .modal-footer {
+    height: 3.5rem;
+    padding: 0.3rem;
+}
+
+.ace_editor {
+    font-size: 16px;
+}
+
+.dropdown-menu {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#snippet-code-editor-container {
+    height: 250px;
+    border-radius: 0.25rem;
+    border: 1px solid #495057;
+}
+
+.modal-footer .docs-link {
+    margin-right: auto;
+}
+
+#htmlModal .modal-body {
+    padding: 0;
+}
+
+.modal-body #full-html-editor {
+    height: 400px;
+}
+
+.nav-buttons .btn:hover,
+.nav-buttons .btn:active {
+    background: none;
+}
+
+.btn {
+    transition: background 50ms ease-in-out, color 50ms ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .split-view {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #title-input {
+        max-width: 220px;
+    }
+
+    .nav-title,
+    .nav-file-icon {
+        display: none;
+    }
+
+    .nav-bs-icon {
+        margin-left: 3px;
+        margin-right: 0 !important;
+    }
+}
