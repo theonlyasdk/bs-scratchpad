@@ -334,6 +334,7 @@ getHtmlBtn.addEventListener("click", () => {
     fullHtmlEditor.setValue(getIframeContent(editor.getValue()), -1);
     htmlModal.show();
 });
+
 copyHtmlBtn.addEventListener("click", () => {
     const tempTextArea = document.createElement("textarea");
     tempTextArea.value = fullHtmlEditor.getValue();
