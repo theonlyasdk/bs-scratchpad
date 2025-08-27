@@ -31,23 +31,6 @@ const fullHtmlEditor = ace.edit("full-html-editor");
     ed.$blockScrolling = Infinity;
 });
 
-const editorThemes = {
-    "Tomorrow Night": "ace/theme/tomorrow_night",
-    "Monokai": "ace/theme/monokai",
-    "GitHub": "ace/theme/github_dark",
-    "Solarized Dark": "ace/theme/solarized_dark",
-    "Cobalt": "ace/theme/cobalt",
-}
-
-const predefinedFonts = {
-    "Ubuntu Mono": "Ubuntu Mono",
-    "Courier New": "Courier New",
-    "Lucida Console": "Lucida Console",
-    "JetBrains Mono": "JetBrains Mono",
-    "Consolas": "Consolas",
-    "Custom...": "custom",
-}
-
 const getIframeContent = (userCode) => {
     const title = titleInput.value || "Document";
     return `
@@ -165,7 +148,7 @@ const loadSettings = () => {
     const theme = settings.theme || "ace/theme/tomorrow_night";
     const fontSize = settings.fontSize || 16;
     const tabSize = settings.tabSize || 4;
-    const font = settings.font || "Ubuntu Mono";
+    const font = settings.font || "monospace";
     const autocomplete = settings.autocomplete === undefined ? true : settings.autocomplete;
 
     editorThemeSelect.value = theme;
@@ -195,6 +178,7 @@ const loadSettings = () => {
     });
     editor.session.setUseWrapMode(wordWrapToggle.checked);
 };
+
 const populateSnippets = () => {
     snippetsMenu.innerHTML = "";
     const createItem = (name, code) => {
