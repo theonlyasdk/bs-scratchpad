@@ -159,11 +159,15 @@ html {
 }
 
 .btn {
-    transition: background 50ms ease-in-out, color 50ms ease-in-out;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn:active {
+    transform: scale(0.98);
 }
 
 .btn span {
-    transition: opacity 0.3s ease-in-out, filter 0.2s ease-in-out, transform 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in, filter 0.1s ease-in-out, transform 0.2s var(--smooth-spring);
 }
 
 .nav-title {

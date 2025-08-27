@@ -61,14 +61,12 @@ ${userCode.trim().indent(8)}
 const animateButtonText = (button, newText, duration = 2000) => {
     const buttonSpan = button.querySelector('span');
     if (!buttonSpan) return;
-
-    button.width = "200px";
     
     const originalText = buttonSpan.innerHTML;
     buttonSpan.style.display = "inline-block";
     buttonSpan.style.opacity = 0;
     buttonSpan.style.filter = "blur(2px)";
-    buttonSpan.style.transform = "scale(0.95)";
+    buttonSpan.style.transform = "scale(0.8)";
 
     setTimeout(() => {
         buttonSpan.innerHTML = newText;
@@ -79,7 +77,7 @@ const animateButtonText = (button, newText, duration = 2000) => {
 
     setTimeout(() => {
         buttonSpan.style.opacity = 0;
-        buttonSpan.style.transform = "scale(1.0)";
+        buttonSpan.style.transform = "scale(0.8)";
         buttonSpan.style.filter = "blur(2px)";
 
         setTimeout(() => {
