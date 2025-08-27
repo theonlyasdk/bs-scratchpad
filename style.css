@@ -166,6 +166,10 @@ html {
     transition: opacity 0.3s ease-in-out, filter 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
+.nav-title {
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
     .split-view {
         display: flex;
