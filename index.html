@@ -40,6 +40,9 @@
           <button id="get-html-btn" class="btn btn-outline-secondary border-0" title="Get full HTML">
             <i class="bi bi-code-slash fs-5"></i>
           </button>
+          <button id="gemini-btn" class="btn btn-outline-secondary border-0" title="Generate with Gemini">
+            <i class="bi bi-stars fs-5"></i>
+          </button>
           <button class="btn btn-outline-secondary border-0 ms-2" type="button" data-bs-toggle="modal"
             data-bs-target="#settingsModal" title="Settings">
             <i class="bi bi-gear fs-5"></i>
@@ -54,6 +57,28 @@
       <div id="preview" class="border-start"><iframe id="preview-iframe" title="Preview"></iframe></div>
     </div>
   </div>
+  <div class="modal fade" id="geminiModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Generate with Gemini</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="gemini-prompt-input" class="form-label">Concept Prompt</label>
+            <textarea class="form-control" id="gemini-prompt-input" rows="3" placeholder="e.g., a login form with a remember me checkbox"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-bs-dismiss="modal"><span>Close</span></button>
+          <button type="button" class="btn btn-primary" id="generate-gemini-btn">
+            <i class="bi bi-stars me-2"></i><span>Generate</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="modal fade" id="htmlModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
@@ -66,6 +91,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" data-bs-dismiss="modal"><span>Close</span></button>
+          <button type="button" class="btn btn-secondary" id="download-html-btn" title="Download as HTML file">
+            <i class="bi bi-download me-2"></i><span>Download</span>
+          </button>
           <button type="button" class="btn btn-primary" id="copy-html-btn" title="Copy to clipboard">
             <i class="bi bi-clipboard me-2"></i><span>Copy</span>
           </button>
@@ -102,6 +130,18 @@
             <div class="col"><label for="tab-size-input" class="form-label">Tab Size</label><input type="number"
                 class="form-control" id="tab-size-input" min="1" max="8" value="4" />
             </div>
+          </div>
+          <hr>
+          <div class="mb-3">
+            <label for="gemini-api-key-input" class="form-label">Gemini API Key</label>
+            <input type="password" class="form-control" id="gemini-api-key-input" placeholder="Paste your API key here">
+            <div class="form-text">
+              Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.
+            </div>
+          </div>
+          <div class="mb-3" id="gemini-model-select-container">
+            <label for="gemini-model-select" class="form-label">Gemini Model</label>
+            <select class="form-select" id="gemini-model-select"></select>
           </div>
           <hr>
           <div>
@@ -166,7 +206,7 @@
   <script>
     ace.config.set("basePath", "lib/js/");
   </script>
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 
 </html>

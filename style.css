@@ -196,3 +196,18 @@ html {
         font-size: 0.8rem;
     }
 }
+
+.shimmer {
+    background: linear-gradient(90deg, #ffffff00 0%, #ffffff00 40%, #ffffff33 50%, #ffffff00 60%, #ffffff00 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}

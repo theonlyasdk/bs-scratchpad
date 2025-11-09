@@ -1,19 +1,29 @@
+import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
 const titleInput = document.getElementById("title-input");
 const getHtmlBtn = document.getElementById("get-html-btn");
+const geminiBtn = document.getElementById("gemini-btn");
 const htmlModal = new bootstrap.Modal(document.getElementById("htmlModal"));
 const addSnippetModal = new bootstrap.Modal(document.getElementById("addSnippetModal"));
+const geminiModal = new bootstrap.Modal(document.getElementById("geminiModal"));
 const htmlModalLabel = document.getElementById("htmlModalLabel");
 const copyHtmlBtn = document.getElementById("copy-html-btn");
+const downloadHtmlBtn = document.getElementById("download-html-btn");
 const snippetsMenu = document.getElementById("snippets-menu");
 const wordWrapToggle = document.getElementById("word-wrap-toggle");
 const autocompleteToggle = document.getElementById("autocomplete-toggle");
 const snippetTitleInput = document.getElementById("snippet-title-input");
 const saveSnippetBtn = document.getElementById("save-snippet-btn");
+const generateGeminiBtn = document.getElementById("generate-gemini-btn");
 const editorThemeSelect = document.getElementById("editor-theme-select");
 const fontSizeInput = document.getElementById("font-size-input");
 const tabSizeInput = document.getElementById("tab-size-input");
 const editorFontSelect = document.getElementById("editor-font-select");
 const customFontInput = document.getElementById("custom-font-input");
+const geminiPromptInput = document.getElementById("gemini-prompt-input");
+const geminiApiKeyInput = document.getElementById("gemini-api-key-input");
+const geminiModelSelect = document.getElementById("gemini-model-select");
+const geminiModelSelectContainer = document.getElementById("gemini-model-select-container");
 const previewIframe = document.getElementById("preview-iframe");
 const importSnippetsBtn = document.getElementById("import-snippets-btn");
 const exportSnippetsBtn = document.getElementById("export-snippets-btn");
@@ -22,6 +32,7 @@ const importSnippetsInput = document.getElementById("import-snippets-input");
 const docStorageKey = "bs-scratchpad-document-data";
 const settingsStorageKey = "bs-scratchpad-settings";
 const snippetsStorageKey = "bs-scratchpad-snippets";
+const geminiApiKeyStorageKey = "bs-scratchpad-gemini-api-key";
 const editor = ace.edit("editor");
 const snippetEditor = ace.edit("snippet-code-editor");
 const fullHtmlEditor = ace.edit("full-html-editor");
@@ -30,6 +41,37 @@ const fullHtmlEditor = ace.edit("full-html-editor");
     ed.session.setMode("ace/mode/html");
     ed.$blockScrolling = Infinity;
 });
+
+const populateModels = async (callback) => {
+    const apiKey = geminiApiKeyInput.value;
+    if (!apiKey) {
+        geminiModelSelectContainer.style.display = 'none';
+        return;
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        geminiModelSelect.innerHTML = "";
+        data.models.forEach(model => {
+            if (model.supportedGenerationMethods.includes("generateContent")) {
+                geminiModelSelect.add(new Option(model.displayName, model.name));
+            }
+        });
+        geminiModelSelectContainer.style.display = 'block';
+        if (callback) {
+            callback();
+        }
+    } catch (error) {
+        console.error("Error fetching models:", error);
+        geminiModelSelectContainer.style.display = 'none';
+    }
+};
 
 const getIframeContent = (userCode) => {
     const title = titleInput.value || "Document";
@@ -123,8 +165,10 @@ const saveSettings = () => {
             fontSize: fontSizeInput.value,
             tabSize: tabSizeInput.value,
             font: editorFontSelect.value === "custom" ? customFontInput.value : editorFontSelect.value,
+            geminiModel: geminiModelSelect.value,
         })
     );
+    localStorage.setItem(geminiApiKeyStorageKey, geminiApiKeyInput.value);
 }
 
 const loadSettings = () => {
@@ -148,12 +192,14 @@ const loadSettings = () => {
     const tabSize = settings.tabSize || 4;
     const font = settings.font || "monospace";
     const autocomplete = settings.autocomplete === undefined ? true : settings.autocomplete;
+    const geminiModel = settings.geminiModel;
 
     editorThemeSelect.value = theme;
     wordWrapToggle.checked = settings.wordWrap === true;
     autocompleteToggle.checked = autocomplete;
     fontSizeInput.value = fontSize;
     tabSizeInput.value = tabSize;
+    geminiApiKeyInput.value = localStorage.getItem(geminiApiKeyStorageKey) || "";
 
     if (Object.values(predefinedFonts).includes(font)) {
         editorFontSelect.value = font;
@@ -271,6 +317,48 @@ const clearSnippets = () => {
     }
 };
 
+const generateWithGemini = async () => {
+	const systemPrompt = `
+	You are a bootstrap code generator for a bootstrap scratchpad tool. You will generate bootstrap code for the requested prompt.
+	You will only generate code that goes inside the <body> (without using <body> tag itself) and will not generate the full html document.
+	Put any <style> tags above the content and generate script tags below it.
+	Never generate any content that might seem harmful and inform the user by using a placeholder html comment.
+	You are a code generator bot and has no function to talk to the user normally and you only output code.
+	If the user types in an ambiguous prompt, just generate a comment that says clarify your prompt more, etc.
+	Never wrap the code in backticks. Do not use markdown to wrap the code.
+	Never include bootstrap <script> tags or <link> tags as they are already included by the tool.
+	`;
+    const prompt = geminiPromptInput.value;
+    const apiKey = geminiApiKeyInput.value;
+    const selectedModel = geminiModelSelect.value;
+
+    if (!prompt || !apiKey) {
+        animateButtonText(generateGeminiBtn, 'Prompt or API key missing');
+        return;
+    }
+
+    generateGeminiBtn.disabled = true;
+    generateGeminiBtn.classList.add('shimmer');
+    animateButtonText(generateGeminiBtn, 'Generating...', 0); // Set text immediately without animation
+
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: selectedModel });
+        const result = await model.generateContent(`${systemPrompt}\n${prompt}`);
+        const response = await result.response;
+        const text = response.text();
+        editor.setValue(text, -1);
+        geminiModal.hide();
+        animateButtonText(generateGeminiBtn, 'Generated');
+    } catch (error) {
+        console.error('Error generating with Gemini:', error);
+        animateButtonText(generateGeminiBtn, 'Error');
+    } finally {
+        generateGeminiBtn.disabled = false;
+        generateGeminiBtn.classList.remove('shimmer');
+    }
+};
+
 snippetsMenu.addEventListener("click", (e) => {
     if (e.target.tagName === "A" && e.target.dataset.code) {
         e.preventDefault();
@@ -299,7 +387,7 @@ editor.session.on("change", () => {
 });
 
 titleInput.addEventListener("input", saveData);
-[editorThemeSelect, wordWrapToggle, autocompleteToggle, fontSizeInput, tabSizeInput, editorFontSelect, customFontInput].forEach((el) =>
+[editorThemeSelect, wordWrapToggle, autocompleteToggle, fontSizeInput, tabSizeInput, editorFontSelect, customFontInput, geminiApiKeyInput, geminiModelSelect].forEach((el) =>
     el.addEventListener("change", () => {
         const newTheme = editorThemeSelect.value;
         const newFontSize = parseInt(fontSizeInput.value);
@@ -311,6 +399,14 @@ titleInput.addEventListener("input", saveData);
             customFontInput.style.display = "block";
         } else {
             customFontInput.style.display = "none";
+        }
+
+        if (el === geminiApiKeyInput) {
+            if (geminiApiKeyInput.value) {
+                populateModels();
+            } else {
+                geminiModelSelectContainer.style.display = 'none';
+            }
         }
 
         [editor, snippetEditor, fullHtmlEditor].forEach((ed) => {
@@ -334,22 +430,41 @@ getHtmlBtn.addEventListener("click", () => {
 });
 
 copyHtmlBtn.addEventListener("click", () => {
-    const tempTextArea = document.createElement("textarea");
-    tempTextArea.value = fullHtmlEditor.getValue();
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempTextArea);
-    animateButtonText(copyHtmlBtn, 'Copied');
+    navigator.clipboard.writeText(fullHtmlEditor.getValue()).then(() => {
+        animateButtonText(copyHtmlBtn, 'Copied');
+    });
+});
+
+downloadHtmlBtn.addEventListener("click", () => {
+    const blob = new Blob([fullHtmlEditor.getValue()], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${titleInput.value || "document"}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    animateButtonText(downloadHtmlBtn, 'Downloaded');
 });
 
 importSnippetsBtn.addEventListener("click", () => importSnippetsInput.click());
 importSnippetsInput.addEventListener("change", importSnippets);
 exportSnippetsBtn.addEventListener("click", exportSnippets);
 clearSnippetsBtn.addEventListener("click", clearSnippets);
+geminiBtn.addEventListener("click", () => geminiModal.show());
+generateGeminiBtn.addEventListener("click", generateWithGemini);
 
 document.addEventListener("DOMContentLoaded", () => {
     populateSnippets();
     loadSettings();
     loadData();
+    geminiModelSelectContainer.style.display = 'none';
+    if (localStorage.getItem(geminiApiKeyStorageKey)) {
+        populateModels(() => {
+            const settings = JSON.parse(localStorage.getItem(settingsStorageKey) || "{}");
+            const geminiModel = settings.geminiModel;
+            if (geminiModel) {
+                geminiModelSelect.value = geminiModel;
+            }
+        });
+    }
 });
